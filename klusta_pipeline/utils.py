@@ -143,7 +143,7 @@ def do_car(data):
         car_data[:,ch] = waveform-common_av
     return car_data
 
-def realign(r,chans,fs):
+def spline_realign(r,chans,fs):
 
     start = np.amax([r[lbl]['times'][0] for lbl in chans])
     stop = np.amin([r[lbl]['times'][-1] for lbl in chans])
@@ -165,6 +165,36 @@ def realign(r,chans,fs):
         rec['data'][:,ch] = spline(t_new)
 
     return rec
+    
+def no_realign(r,chans,fs):
+
+    start = np.amax([r[lbl]['times'][0] for lbl in chans])
+    stop = np.amin([r[lbl]['times'][-1] for lbl in chans])
+    raw_length = np.amin([len(r[lbl]['times']) for lbl in chans])
+    shape = raw_length, len(chans)
+
+    rec = {
+        'data': np.empty(shape,np.int16),
+        'name': '',
+        'description': '',
+        'file_origin': r['file_origin'],
+        'start_time': start,
+        'fs': fs,
+    }
+
+    for ch,lbl in enumerate(chans):
+        rec['data'][:,ch] = r[lbl]['values'][0:raw_length]
+    return rec
+    
+def realign(r,chans,fs,method):
+
+	realign_methods = {
+		'none':no_realign,
+		'spline':spline_realign,
+	}
+	
+	realigned_rec = realign_methods[method](r,chans,fs)
+	return realigned_rec
 
 def subsample_data(data,npts=1000000,axis=0):
     pts = data.shape[0]

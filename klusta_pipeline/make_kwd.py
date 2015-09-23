@@ -30,6 +30,7 @@ def get_args():
                        help='weights channels for common average referencing')
     parser.add_argument('-x','--drop',dest='omit',type=str, default='',
                        help='comma-separate list of channel labels to drop if they exist')
+    parser.add_argument('-a','--align',dest='realignment',type=str, default='spline', help='turns on realignment')
 
     return parser.parse_args()
 
@@ -76,13 +77,13 @@ def main():
         'probe': args.probe,
     }
     save_parameters(info['params'],dest)
-
+    
     rec_list = []
     # print import_list
     for import_file in import_list:
         recordings = load_recordings(import_file,chans)
         for r in recordings:
-            rec = realign(r,chans,args.fs)
+            rec = realign(r,chans,args.fs,args.realignment)
             rec['data'] -= rec['data'].mean(axis=0)
             rec_list.append(rec)
         
