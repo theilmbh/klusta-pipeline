@@ -143,58 +143,66 @@ def do_car(data):
         car_data[:,ch] = waveform-common_av
     return car_data
 
-def spline_realign(r,chans,fs):
-
-    start = np.amax([r[lbl]['times'][0] for lbl in chans])
-    stop = np.amin([r[lbl]['times'][-1] for lbl in chans])
+def spline_realign(r,chans,fs,start,stop):
+    '''spline realignment.
+    realigns each channel using InterpolatedUnivariateSpline
+    r: dictionary containing raw data keyed by channel label
+    chans: channel labels
+    fs: sampling frequency (Hz)
+    '''
     t_new = np.arange(start,stop,1.0/fs)
 
     shape = len(t_new), len(chans) 
-
-    rec = {
-        'data': np.empty(shape,np.int16),
-        'name': '',
-        'description': '',
-        'file_origin': r['file_origin'],
-        'start_time': start,
-        'fs': fs,
-    }
+    realigned_data = np.empty(shape, np.int16)
 
     for ch,lbl in enumerate(chans):
         spline = interpolate.InterpolatedUnivariateSpline(r[lbl]['times'], r[lbl]['values'])
-        rec['data'][:,ch] = spline(t_new)
+        realigned_data[:,ch] = spline(t_new)
 
-    return rec
+    return realigned_data    
     
-def no_realign(r,chans,fs):
-
-    start = np.amax([r[lbl]['times'][0] for lbl in chans])
-    stop = np.amin([r[lbl]['times'][-1] for lbl in chans])
+def no_realign(r,chans,fs,start,stop):
+    '''no realignment.
+    truncates data so that all channels are the same length. 
+    assumes that each sample of each channel occurs at simultaneous absolute time
+    r: dictionary containing raw data keyed by channel label
+    chans: channel labels
+    fs: sampling frequency (Hz)
+    '''
     raw_length = np.amin([len(r[lbl]['times']) for lbl in chans])
     shape = raw_length, len(chans)
-
-    rec = {
-        'data': np.empty(shape,np.int16),
-        'name': '',
-        'description': '',
-        'file_origin': r['file_origin'],
-        'start_time': start,
-        'fs': fs,
-    }
-
+    realigned_data = np.empty(shape, np.int16)
+	
     for ch,lbl in enumerate(chans):
-        rec['data'][:,ch] = r[lbl]['values'][0:raw_length]
-    return rec
+        realigned_data[:,ch] = r[lbl]['values'][0:raw_length]
+    return realigned_data
     
 def realign(r,chans,fs,method):
-
-	realign_methods = {
+    '''Realignment wrapper.
+    calls appropriate realignment method.
+    r: dictionary containing raw data keyed by channel label
+    chans: channel labels
+    fs: sampling frequency (Hz)
+    method: string containing the desired realignment method
+    '''
+    realign_methods = {
 		'none':no_realign,
 		'spline':spline_realign,
 	}
 	
-	realigned_rec = realign_methods[method](r,chans,fs)
-	return realigned_rec
+    start = np.amax([r[lbl]['times'][0] for lbl in chans])
+    stop = np.amin([r[lbl]['times'][-1] for lbl in chans])
+    
+    rec = {
+        'name': '',
+        'description': '',
+        'file_origin': r['file_origin'],
+        'start_time': start,
+        'fs': fs,
+    }
+
+    rec['data'] = realign_methods[method](r, chans, fs, start, stop)
+    return rec
 
 def subsample_data(data,npts=1000000,axis=0):
     pts = data.shape[0]

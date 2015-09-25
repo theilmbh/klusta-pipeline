@@ -30,7 +30,7 @@ def get_args():
                        help='weights channels for common average referencing')
     parser.add_argument('-x','--drop',dest='omit',type=str, default='',
                        help='comma-separate list of channel labels to drop if they exist')
-    parser.add_argument('-a','--align',dest='realignment',type=str, default='spline', help='turns on realignment')
+    parser.add_argument('-a','--align',dest='realignment',type=str, default='spline', help='sets realignment method')
 
     return parser.parse_args()
 
