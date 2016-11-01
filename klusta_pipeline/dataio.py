@@ -71,8 +71,12 @@ def load_recordings(s2mat,chans, inc_times=True):
 
 def load_digmark(s2mat):
     with h5.File(s2mat, 'r') as f:
-        times = np.array(f['DigMark']['times']).T.squeeze()
-        codes = np.array([str(unichr(c)) for c in f['DigMark']['codes'][0,:]])
+        try:
+            times = np.array(f['DigMark']['times']).T.squeeze()
+            codes = np.array([str(unichr(c)) for c in f['DigMark']['codes'][0,:]])
+        except KeyError:
+            times = np.array(f['DigMark_']['times'].T.squeeze())
+            codes = np.array([str(unichr(c)) for c in f['DigMark_']['codes'][0,:]])
     assert len(codes)==len(times)
     return codes, times
 
