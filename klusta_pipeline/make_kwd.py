@@ -16,9 +16,9 @@ from klusta_pipeline.probe import get_channel_groups, clean_dead_channels, build
 def get_args():
 
     parser = argparse.ArgumentParser(description='Compile Spike2 epoch .mat files into KlustaKwik KWD file.')
-    parser.add_argument('rig',type=str, 
+    parser.add_argument('rig',type=str,
                        help='defines the rig that the data was collected on. Options include: %s' % (str(port_site.keys())))
-    parser.add_argument('probe',type=str, 
+    parser.add_argument('probe',type=str,
                        help="defines the probe that the data was collected on. Options include ['A1x32-Poly3-6mm-50', 'A1x16-5mm-50']")
     # TODO: change probe.py so that import and automatic update of the documentation is possible
     parser.add_argument('path', default = './', nargs='?',
@@ -33,7 +33,7 @@ def get_args():
                        help='weights channels for common average referencing')
     parser.add_argument('-x','--drop',dest='omit',type=str, default='',
                        help='comma-separate list of channel labels to drop if they exist')
-    parser.add_argument('-a','--align',dest='realignment',type=str, default='spline', 
+    parser.add_argument('-a','--align',dest='realignment',type=str, default='spline',
                        help='sets realignment method. Options include: %s' % (str(realign_methods.keys())))
     parser.add_argument('--upper',dest='upper_thresh',type=float,default=4.5,help='Sets the upper threshold in std for spike detektion')
     parser.add_argument('--lower',dest='lower_thresh',type=float,default=2,help='Sets the lower threshold in std for spike detektion')
@@ -101,7 +101,7 @@ def main():
         'postspike': postspike_samps
     }
     save_parameters(info['params'],dest)
-    
+
     rec_list = []
     # print import_list
     for import_file in import_list:
@@ -124,8 +124,8 @@ def main():
 
         save_recording(kwd,rec,indx)
 
-    print 'peak memory usage: %f GB' % (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024. / 1024.)
-    print 'time: %s' % (datetime.datetime.now() - tstart)
+    print('peak memory usage: %f GB' % (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024. / 1024.))
+    print('time: %s' % (datetime.datetime.now() - tstart))
 
 if __name__ == '__main__':
     main()

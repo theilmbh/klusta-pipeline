@@ -10,21 +10,21 @@ chunksize = 250000
 
 with h5.File(s2mat, 'r') as f:
 
-	chans = [s for s in f.keys() if 'Port' in s]
-	nchans = len(chans)
-	nsamps = int(f[chans[0]]['length'][0][0])
+    chans = [s for s in f.keys() if 'Port' in s]
+    nchans = len(chans)
+    nsamps = int(f[chans[0]]['length'][0][0])
 
-	with open(datfile, 'wb') as outfile:
-		chunk = 0
-		while (chunk)*chunksize < nsamps:
-			print('Sample {} of {}'.format(chunk*chunksize, nsamps))
-			t_data = np.zeros((chunksize, len(chans)))
-			for chnum, chan in enumerate(chans):
-				if (chunk+1)*chunksize < nsamps:
-					t_data[:, chnum] = f[chan]['values'][0, chunk*chunksize:(chunk+1)*chunksize]
-				else:
-					t_data = np.zeros((nsamps - chunk*chunksize, nchans))
-					t_data = f[chan]['values'][0, chunk*chunksize:]
-				t_data_bin = t_data.astype(np.int16).tobytes()
-				outfile.write(t_data_bin)
-			chunk = chunk+1
+    with open(datfile, 'wb') as outfile:
+        chunk = 0
+        while (chunk)*chunksize < nsamps:
+            print('Sample {} of {}'.format(chunk*chunksize, nsamps))
+            t_data = np.zeros((chunksize, len(chans)))
+            for chnum, chan in enumerate(chans):
+                if (chunk+1)*chunksize < nsamps:
+                    t_data[:, chnum] = f[chan]['values'][0, chunk*chunksize:(chunk+1)*chunksize]
+                else:
+                    t_data = np.zeros((nsamps - chunk*chunksize, nchans))
+                    t_data = f[chan]['values'][0, chunk*chunksize:]
+                t_data_bin = t_data.astype(np.int16).tobytes()
+                outfile.write(t_data_bin)
+            chunk = chunk+1

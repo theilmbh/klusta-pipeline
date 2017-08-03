@@ -228,7 +228,7 @@ def get_graph_from_geometry(geometry):
     
     # then build the list of edges from the triangulation
     indices, indptr = tri.vertex_neighbor_vertices
-    print indices, indptr
+    print(indices, indptr)
     edges = []
     for k in range(indices.shape[0]-1):
         for j in indptr[indices[k]:indices[k+1]]:
